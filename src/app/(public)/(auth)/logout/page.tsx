@@ -7,9 +7,9 @@ import {
 } from "@/lib/utils";
 import { useLogoutMutation } from "@/queries/useAuth";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { Suspense, useEffect, useRef } from "react";
 
-export default function Logout() {
+function Logout() {
   const { mutateAsync } = useLogoutMutation();
   const router = useRouter();
   const { setIsAuth } = useAppContext();
@@ -41,4 +41,12 @@ export default function Logout() {
     }
   }, [mutateAsync, router, refreshTokenFromUrl, accessTokenFromUrl, setIsAuth]);
   return <div>Logout ..............</div>;
+}
+
+export default function LogoutPage() {
+  return (
+    <Suspense>
+      <Logout />
+    </Suspense>
+  );
 }
