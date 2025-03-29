@@ -1,5 +1,6 @@
 "use client";
 
+import { useAppContext } from "@/components/app-provider";
 import {
   getAccessTokenFromLocalStorage,
   getRefreshTokenFromLocalStorage,
@@ -11,6 +12,8 @@ import { useEffect, useRef } from "react";
 export default function Logout() {
   const { mutateAsync } = useLogoutMutation();
   const router = useRouter();
+  const { setIsAuth } = useAppContext();
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const ref = useRef<any>(null);
   const searchParams = useSearchParams();
@@ -18,20 +21,24 @@ export default function Logout() {
   const accessTokenFromUrl = searchParams.get("accessToken");
   useEffect(() => {
     if (
-      ref.current ||
-      (refreshTokenFromUrl &&
-        refreshTokenFromUrl !== getRefreshTokenFromLocalStorage()) ||
-      (accessTokenFromUrl &&
-        accessTokenFromUrl !== getAccessTokenFromLocalStorage())
-    )
-      return;
-    ref.current = mutateAsync;
-    mutateAsync().then(() => {
-      setTimeout(() => {
-        ref.current = null;
-      }, 2000);
-      router.push("/logout");
-    });
-  }, [mutateAsync, router, refreshTokenFromUrl, accessTokenFromUrl]);
-  return <div>Logout</div>;
+      !ref.current &&
+      ((refreshTokenFromUrl &&
+        refreshTokenFromUrl === getRefreshTokenFromLocalStorage()) ||
+        (accessTokenFromUrl &&
+          accessTokenFromUrl === getAccessTokenFromLocalStorage()))
+    ) {
+      ref.current = mutateAsync;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      mutateAsync().then((res) => {
+        setTimeout(() => {
+          ref.current = null;
+        }, 1000);
+        setIsAuth(false);
+        router.push("/login");
+      });
+    } else {
+      router.push("/");
+    }
+  }, [mutateAsync, router, refreshTokenFromUrl, accessTokenFromUrl, setIsAuth]);
+  return <div>Logout ..............</div>;
 }
