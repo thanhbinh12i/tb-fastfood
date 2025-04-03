@@ -53,6 +53,12 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useSearchParams } from "next/navigation";
 import AutoPagination from "@/components/auto-pagination";
+import {
+  useDeleteAccountMutation,
+  useGetAccountList,
+} from "@/queries/useAccount";
+import { handleErrorApi } from "@/lib/utils";
+import { toast } from "@/components/ui/use-toast";
 
 type AccountItem = AccountListResType["data"][0];
 
@@ -151,6 +157,22 @@ function AlertDialogDeleteAccount({
   employeeDelete: AccountItem | null;
   setEmployeeDelete: (value: AccountItem | null) => void;
 }) {
+  const { mutateAsync } = useDeleteAccountMutation();
+  const deleteAccount = async () => {
+    if (employeeDelete) {
+      try {
+        const result = await mutateAsync(employeeDelete.id);
+        setEmployeeDelete(null);
+        toast({
+          description: result?.payload.message,
+        });
+      } catch (error) {
+        handleErrorApi({
+          error,
+        });
+      }
+    }
+  };
   return (
     <AlertDialog
       open={Boolean(employeeDelete)}
@@ -173,7 +195,9 @@ function AlertDialogDeleteAccount({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction>Continue</AlertDialogAction>
+          <AlertDialogAction onClick={deleteAccount}>
+            Continue
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
@@ -190,8 +214,8 @@ export default function AccountTable() {
   const [employeeDelete, setEmployeeDelete] = useState<AccountItem | null>(
     null
   );
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const data: any[] = [];
+  const accountListQuery = useGetAccountList();
+  const data = accountListQuery.data?.payload.data ?? [];
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
