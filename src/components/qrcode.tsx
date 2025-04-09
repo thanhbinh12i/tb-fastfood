@@ -15,11 +15,9 @@ export const QRCodeTable = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const qrCanvas = document.createElement("canvas");
-    // const canvas = canvasRef.current!
     const canvas = canvasRef.current!;
     canvas.height = width + 70;
     canvas.width = width;
-    // const qrContext = qrCanvas.getContext('2d')!
     const canvasContext = canvas.getContext("2d")!;
     canvasContext.fillStyle = "#fff";
     canvasContext.fillRect(0, 0, canvas.width, canvas.height);

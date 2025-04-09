@@ -57,8 +57,7 @@ export default function AddTable() {
   const onSubmit = async (values: CreateTableBodyType) => {
     if (addTableMutation.isPending) return;
     try {
-      // eslint-disable-next-line prefer-const
-      let body = values;
+      const body = values;
 
       const result = await addTableMutation.mutateAsync(body);
       toast({
