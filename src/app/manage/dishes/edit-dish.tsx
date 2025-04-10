@@ -39,6 +39,7 @@ import { DishStatus, DishStatusValues } from "@/constants/type";
 import { Textarea } from "@/components/ui/textarea";
 import { useGetDish, useUpdateDishMutation } from "@/queries/useDish";
 import { useUploadMediaMutation } from "@/queries/useMedia";
+import revalidateApiRequest from "@/apiRequests/revalidate";
 
 export default function EditDish({
   id,
@@ -114,6 +115,7 @@ export default function EditDish({
       toast({
         description: result.payload.message,
       });
+      revalidateApiRequest("dishes");
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       onSubmitSuccess && onSubmitSuccess();
       reset();
