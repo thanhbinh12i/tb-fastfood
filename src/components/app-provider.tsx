@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -10,9 +11,13 @@ import {
   useEffect,
   useState,
 } from "react";
-import { removeTokensFromLocalStorage } from "@/lib/utils";
+import {
+  decodeToken,
+  getAccessTokenFromLocalStorage,
+  removeTokensFromLocalStorage,
+} from "@/lib/utils";
+import { RoleType } from "@/types/jwt.types";
 
-// Create a client
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -23,8 +28,8 @@ const queryClient = new QueryClient({
 
 const AppContext = createContext({
   isAuth: false,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  setIsAuth: (isAuth: boolean) => {},
+  role: undefined as RoleType | undefined,
+  setRole: (role?: RoleType | undefined) => {},
 });
 
 export const useAppContext = () => {
@@ -36,25 +41,27 @@ export default function AppProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [isAuth, setIsAuthState] = useState(false);
+  const [role, setRoleState] = useState<RoleType | undefined>();
   useEffect(() => {
-    const accessToken = localStorage.getItem("accessToken");
+    const accessToken = getAccessTokenFromLocalStorage();
     if (accessToken) {
-      setIsAuthState(true);
+      const role = decodeToken(accessToken).role;
+      setRoleState(role);
     }
   }, []);
 
-  const setIsAuth = useCallback((isAuth: boolean) => {
-    if (isAuth) {
-      setIsAuthState(true);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const setRole = useCallback((role?: RoleType | undefined) => {
+    if (role) {
+      setRoleState(role);
     } else {
       removeTokensFromLocalStorage();
-      setIsAuthState(false);
     }
   }, []);
+  const isAuth = Boolean(role);
   return (
     // Provide the client to your App
-    <AppContext.Provider value={{ isAuth, setIsAuth }}>
+    <AppContext.Provider value={{ role, setRole, isAuth }}>
       <QueryClientProvider client={queryClient}>
         {children}
         <RefreshToken />

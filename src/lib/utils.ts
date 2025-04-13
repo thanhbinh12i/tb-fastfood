@@ -7,6 +7,7 @@ import authApiRequest from "@/apiRequests/auth";
 import jwt from "jsonwebtoken";
 import { DishStatus, OrderStatus, TableStatus } from "@/constants/type";
 import envConfig from "@/config";
+import { TokenPayload } from "@/types/jwt.types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -75,11 +76,11 @@ export const checkAndRefreshToken = async (param?: {
   const refreshToken = getRefreshTokenFromLocalStorage();
   // Chưa đăng nhập thì cũng không cho chạy
   if (!accessToken || !refreshToken) return;
-  const decodedAccessToken = jwt.decode(accessToken) as {
+  const decodedAccessToken = decodeToken(accessToken) as {
     exp: number;
     iat: number;
   };
-  const decodedRefreshToken = jwt.decode(refreshToken) as {
+  const decodedRefreshToken = decodeToken(refreshToken) as {
     exp: number;
     iat: number;
   };
@@ -173,4 +174,8 @@ export const getTableLink = ({
   return (
     envConfig.NEXT_PUBLIC_URL + "/tables/" + tableNumber + "?token=" + token
   );
+};
+
+export const decodeToken = (token: string) => {
+  return jwt.decode(token) as TokenPayload;
 };

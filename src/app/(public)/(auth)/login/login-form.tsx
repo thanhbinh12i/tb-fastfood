@@ -25,7 +25,7 @@ export default function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const clearTokens = searchParams.get("clearTokens");
-  const { setIsAuth } = useAppContext();
+  const { setRole } = useAppContext();
 
   const form = useForm<LoginBodyType>({
     resolver: zodResolver(LoginBody),
@@ -37,9 +37,9 @@ export default function LoginForm() {
 
   useEffect(() => {
     if (clearTokens) {
-      setIsAuth(false);
+      setRole();
     }
-  }, [clearTokens, setIsAuth]);
+  }, [clearTokens, setRole]);
 
   const onSubmit = async (data: LoginBodyType) => {
     if (loginMutation.isPending) return;
@@ -48,7 +48,7 @@ export default function LoginForm() {
       toast({
         description: result.payload.message,
       });
-      setIsAuth(true);
+      setRole(result.payload.data.account.role);
       router.push("/manage/dashboard");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
