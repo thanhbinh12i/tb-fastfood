@@ -17,10 +17,10 @@ const menuItems: {
 }[] = [
   {
     title: "Trang chủ",
-    href: "/",
+    href: "/menu",
   },
   {
-    title: "Món ăn",
+    title: "Menu",
     href: "/guest/menu",
     role: [Role.Guest],
   },
