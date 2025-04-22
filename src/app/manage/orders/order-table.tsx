@@ -51,13 +51,21 @@ import {
 import { endOfDay, format, startOfDay } from "date-fns";
 import TableSkeleton from "@/app/manage/orders/table-skeleton";
 import { toast } from "@/components/ui/use-toast";
-import { GuestCreateOrdersResType } from "@/schemaValidations/guest.schema";
-import { useGetOrderListQuery } from "@/queries/useOrder";
+import {
+  GuestCreateOrdersResType,
+  GuestGetOrdersResType,
+} from "@/schemaValidations/guest.schema";
+import {
+  useGetOrderListQuery,
+  useUpdateOrderMutation,
+} from "@/queries/useOrder";
 import { useGetTableList } from "@/queries/useTable";
+import socket from "@/lib/socket";
 
 export const OrderTableContext = createContext({
   setOrderIdEdit: (value: number | undefined) => {},
   orderIdEdit: undefined as number | undefined,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   changeStatus: (payload: {
     orderId: number;
     dishId: number;
@@ -93,6 +101,7 @@ export default function OrderTable() {
     fromDate: initFromDate,
     toDate: initToDate,
   });
+  const refetchOrderList = orderListQuery.refetch;
   const orderList = orderListQuery.data?.payload.data ?? [];
   const tableListQuery = useGetTableList();
   const tableList = tableListQuery.data?.payload.data ?? [];
@@ -105,6 +114,7 @@ export default function OrderTable() {
     pageIndex, // Gía trị mặc định ban đầu, không có ý nghĩa khi data được fetch bất đồng bộ
     pageSize: PAGE_SIZE, //default page size
   });
+  const updateOrderMutation = useUpdateOrderMutation();
 
   const { statics, orderObjectByGuestId, servingGuestByTableNumber } =
     useOrderService(orderList);
@@ -114,7 +124,13 @@ export default function OrderTable() {
     dishId: number;
     status: (typeof OrderStatusValues)[number];
     quantity: number;
-  }) => {};
+  }) => {
+    try {
+      await updateOrderMutation.mutateAsync(body);
+    } catch (error) {
+      handleErrorApi({ error });
+    }
+  };
 
   const table = useReactTable({
     data: orderList,
@@ -149,6 +165,59 @@ export default function OrderTable() {
     setFromDate(initFromDate);
     setToDate(initToDate);
   };
+  useEffect(() => {
+    if (socket.connected) {
+      onConnect();
+    }
+
+    function onConnect() {
+      console.log(socket.id);
+    }
+
+    function onDisconnect() {
+      console.log("disconnect");
+    }
+
+    function refetch() {
+      const now = new Date();
+      if (now >= fromDate && now <= toDate) {
+        refetchOrderList();
+      }
+    }
+
+    function onUpdateOrder(data: UpdateOrderResType["data"]) {
+      const {
+        dishSnapshot: { name },
+        quantity,
+      } = data;
+      toast({
+        description: `Món ${name} (Sl: ${quantity}) vừa được cập nhật sang trạng thái ${getVietnameseOrderStatus(
+          data.status
+        )}`,
+      });
+      refetch();
+    }
+
+    function onNewOrder(data: GuestGetOrdersResType["data"]) {
+      const { guest } = data[0];
+      toast({
+        description: `${guest?.name} tại bàn ${guest?.tableNumber} vừa đặt ${data.length} đơn`,
+      });
+      refetch();
+    }
+    socket.on("update-order", onUpdateOrder);
+    socket.on("new-order", onNewOrder);
+
+    socket.on("connect", onConnect);
+    socket.on("disconnect", onDisconnect);
+
+    return () => {
+      socket.off("connect", onConnect);
+      socket.off("disconnect", onDisconnect);
+      socket.off("update-order", onUpdateOrder);
+      socket.off("new-order", onNewOrder);
+    };
+  }, [fromDate, toDate, refetchOrderList]);
 
   return (
     <OrderTableContext.Provider
