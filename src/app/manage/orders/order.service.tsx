@@ -68,6 +68,7 @@ export const useOrderService = (orderList: GetOrdersResType["data"]) => {
             OrderStatus.Pending,
             OrderStatus.Processing,
             OrderStatus.Delivered,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
           ].includes(order.status as any)
         );
         if (isServingGuest) {
