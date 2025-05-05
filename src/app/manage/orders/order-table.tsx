@@ -98,8 +98,8 @@ export default function OrderTable() {
   const pageIndex = page - 1;
   const [orderIdEdit, setOrderIdEdit] = useState<number | undefined>();
   const orderListQuery = useGetOrderListQuery({
-    fromDate: initFromDate,
-    toDate: initToDate,
+    fromDate: fromDate,
+    toDate: toDate,
   });
   const refetchOrderList = orderListQuery.refetch;
   const orderList = orderListQuery.data?.payload.data ?? [];

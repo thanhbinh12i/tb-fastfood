@@ -5,6 +5,7 @@ import {
   ChangePasswordBodyType,
   CreateEmployeeAccountBodyType,
   CreateGuestBodyType,
+  CreateGuestResType,
   GetGuestListQueryParamsType,
   GetListGuestsResType,
   UpdateEmployeeAccountBodyType,
@@ -44,14 +45,14 @@ const accountApiRequest = {
     http.delete<AccountResType>(`${prefix}/detail/${id}`),
   guestList: (queryParams: GetGuestListQueryParamsType) =>
     http.get<GetListGuestsResType>(
-      `/guests?` +
+      `${prefix}/guests?` +
         queryString.stringify({
           fromDate: queryParams.fromDate?.toISOString(),
           toDate: queryParams.toDate?.toISOString(),
         })
     ),
   createGuest: (body: CreateGuestBodyType) =>
-    http.post<CreateGuestBodyType>("/guests", body),
+    http.post<CreateGuestResType>(`${prefix}/guests`, body),
 };
 
 export default accountApiRequest;
