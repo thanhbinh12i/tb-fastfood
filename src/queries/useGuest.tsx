@@ -1,4 +1,6 @@
+import accountApiRequest from "@/apiRequests/account";
 import guestApiRequest from "@/apiRequests/guest";
+import { GetGuestListQueryParamsType } from "@/schemaValidations/account.schema";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 export const useGuestLoginMutation = () => {
@@ -23,5 +25,18 @@ export const useGuestGetOrderListQuery = () => {
   return useQuery({
     queryKey: ["guest-orders"],
     queryFn: guestApiRequest.getOrderList,
+  });
+};
+
+export const useGuestListQuery = (queryParams: GetGuestListQueryParamsType) => {
+  return useQuery({
+    queryKey: ["guests", queryParams],
+    queryFn: () => accountApiRequest.guestList(queryParams),
+  });
+};
+
+export const useCreateGuestMutation = () => {
+  return useMutation({
+    mutationFn: accountApiRequest.createGuest,
   });
 };
