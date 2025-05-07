@@ -1,6 +1,5 @@
 "use client";
 
-import { TrendingUp } from "lucide-react";
 import { Bar, BarChart, XAxis, YAxis } from "recharts";
 
 import {
@@ -17,14 +16,10 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { DashboardIndicatorResType } from "@/schemaValidations/indicator.schema";
+import { useMemo } from "react";
 
-const colors = [
-  "var(--color-chrome)",
-  "var(--color-safari)",
-  "var(--color-firefox)",
-  "var(--color-edge)",
-  "var(--color-other)",
-];
+const colors = ["#4285F4", "#1DB954", "#FF7139", "#0078D7", "#9E9E9E"];
 
 const chartConfig = {
   visitors: {
@@ -51,14 +46,25 @@ const chartConfig = {
     color: "hsl(var(--chart-5))",
   },
 } satisfies ChartConfig;
-const chartData = [
-  { name: "chrome", successOrders: 275, fill: "#4285F4" },
-  { name: "safari", successOrders: 200, fill: "#1DB954" },
-  { name: "firefox", successOrders: 187, fill: "#FF7139" },
-  { name: "edge", successOrders: 173, fill: "#0078D7" },
-  { name: "other", successOrders: 90, fill: "#9E9E9E" },
-];
-export function DishBarChart() {
+
+export function DishBarChart({
+  chartData,
+}: {
+  chartData: Pick<
+    DashboardIndicatorResType["data"]["dishIndicator"][0],
+    "name" | "successOrders"
+  >[];
+}) {
+  const chartDateColors = useMemo(
+    () =>
+      chartData.map((data, index) => {
+        return {
+          ...data,
+          fill: colors[index] ?? colors[colors.length - 1],
+        };
+      }),
+    [chartData]
+  );
   return (
     <Card>
       <CardHeader>
@@ -69,7 +75,7 @@ export function DishBarChart() {
         <ChartContainer config={chartConfig}>
           <BarChart
             accessibilityLayer
-            data={chartData}
+            data={chartDateColors}
             layout="vertical"
             margin={{
               left: 0,
@@ -91,7 +97,7 @@ export function DishBarChart() {
             <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
             <Bar
               dataKey="successOrders"
-              name={"Đơn thanh toán"}
+              name={"Đơn thanh toán: "}
               layout="vertical"
               radius={5}
             />
