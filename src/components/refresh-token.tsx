@@ -1,4 +1,4 @@
-import { usePathname, useRouter } from "@/i18n/routing";
+import { usePathname, useRouter } from "next/navigation";
 import { checkAndRefreshToken } from "@/lib/utils";
 import { useEffect } from "react";
 import socket from "@/lib/socket";
