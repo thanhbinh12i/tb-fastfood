@@ -1,13 +1,18 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { decodeToken } from "./lib/utils";
 import { Role } from "./constants/type";
+import { TokenPayload } from "./types/jwt.types";
+import jwt from "jsonwebtoken";
 
 const managePaths = ["/manage"];
 const guestPaths = ["/guest"];
 const onlyOwnerPaths = ["/manage/accounts"];
 const privatePaths = [...managePaths, ...guestPaths];
 const unAuthPaths = ["/login"];
+
+const decodeToken = (token: string) => {
+  return jwt.decode(token) as TokenPayload;
+};
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;

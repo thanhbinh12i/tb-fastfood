@@ -1,12 +1,13 @@
 import { usePathname, useRouter } from "next/navigation";
 import { checkAndRefreshToken } from "@/lib/utils";
 import { useEffect } from "react";
-import socket from "@/lib/socket";
+import { useAppContext } from "./app-provider";
 
 const UNAUTHENTICATED_PATH = ["/login", "/register", "/refresh-token"];
 export default function RefreshToken() {
   const pathName = usePathname();
   const router = useRouter();
+  const { disconnectSocket, socket } = useAppContext();
   useEffect(() => {
     if (UNAUTHENTICATED_PATH.includes(pathName)) return;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -16,6 +17,7 @@ export default function RefreshToken() {
       checkAndRefreshToken({
         onError: () => {
           clearInterval(interval);
+          disconnectSocket();
           router.push("/login");
         },
         force,
@@ -53,7 +55,7 @@ export default function RefreshToken() {
       socket?.off("refresh-token", onRefreshTokenSocket);
       clearInterval(interval);
     };
-  }, [pathName, router]);
+  }, [pathName, router, socket, disconnectSocket]);
 
   return null;
 }

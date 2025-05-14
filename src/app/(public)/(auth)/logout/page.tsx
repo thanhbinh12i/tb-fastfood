@@ -12,7 +12,7 @@ import { Suspense, useEffect, useRef } from "react";
 function Logout() {
   const { mutateAsync } = useLogoutMutation();
   const router = useRouter();
-  const { setRole } = useAppContext();
+  const { setRole, disconnectSocket } = useAppContext();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const ref = useRef<any>(null);
@@ -34,12 +34,20 @@ function Logout() {
           ref.current = null;
         }, 1000);
         setRole();
+        disconnectSocket();
         router.push("/login");
       });
     } else {
       router.push("/");
     }
-  }, [mutateAsync, router, refreshTokenFromUrl, accessTokenFromUrl, setRole]);
+  }, [
+    mutateAsync,
+    router,
+    refreshTokenFromUrl,
+    accessTokenFromUrl,
+    setRole,
+    disconnectSocket,
+  ]);
   return <div>Logout ..............</div>;
 }
 

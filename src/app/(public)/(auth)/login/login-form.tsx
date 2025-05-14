@@ -15,7 +15,7 @@ import { LoginBody, LoginBodyType } from "@/schemaValidations/auth.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLoginMutation } from "@/queries/useAuth";
 import { toast } from "@/components/ui/use-toast";
-import { handleErrorApi } from "@/lib/utils";
+import { generateSocketInstance, handleErrorApi } from "@/lib/utils";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { useAppContext } from "@/components/app-provider";
@@ -25,7 +25,7 @@ export default function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const clearTokens = searchParams.get("clearTokens");
-  const { setRole } = useAppContext();
+  const { setRole, setSocket } = useAppContext();
 
   const form = useForm<LoginBodyType>({
     resolver: zodResolver(LoginBody),
@@ -49,6 +49,7 @@ export default function LoginForm() {
         description: result.payload.message,
       });
       setRole(result.payload.data.account.role);
+      setSocket(generateSocketInstance(result.payload.data.accessToken));
       router.push("/manage/dashboard");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
