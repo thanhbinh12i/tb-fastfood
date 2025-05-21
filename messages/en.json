@@ -1,0 +1,13 @@
+{
+  "HomePage": {
+    "title": "TB Fast Food"
+  },
+  "Login": {
+    "title": "Login"
+  },
+  "SwitchLanguage": {
+    "title": "Switch language",
+    "en": "English",
+    "vi": "Vietnamese"
+  }
+}

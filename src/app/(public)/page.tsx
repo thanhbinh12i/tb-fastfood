@@ -2,8 +2,10 @@ import dishApiRequests from "@/apiRequests/dish";
 import { formatCurrency } from "@/lib/utils";
 import { DishListResType } from "@/schemaValidations/dish.schema";
 import Image from "next/image";
+import { getTranslations } from "next-intl/server";
 
 export default async function Home() {
+  const t = await getTranslations("HomePage");
   let dishList: DishListResType["data"] = [];
   try {
     const result = await dishApiRequests.list();
@@ -26,7 +28,7 @@ export default async function Home() {
         />
         <div className="z-20 relative py-10 md:py-20 px-4 sm:px-10 md:px-20">
           <h1 className="text-center text-xl sm:text-2xl md:text-4xl lg:text-5xl font-bold">
-            TB FastFood
+            {t("title")}{" "}
           </h1>
           <p className="text-center text-sm sm:text-base mt-4">
             Vị ngon, trọn khoảnh khắc

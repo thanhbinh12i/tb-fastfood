@@ -7,8 +7,8 @@ import {
   setRefreshTokenToLocalStorage,
 } from "@/lib/utils";
 import { LoginResType } from "@/schemaValidations/auth.schema";
-import { redirect } from "@/i18n/routing";
 import Cookies from "js-cookie";
+import { redirect } from "next/navigation";
 type CustomOptions = Omit<RequestInit, "method"> & {
   baseUrl?: string | undefined;
 };
